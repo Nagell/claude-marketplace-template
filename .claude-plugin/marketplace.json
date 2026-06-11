@@ -1,0 +1,26 @@
+{
+  "name": "my-marketplace",
+  "owner": {
+    "name": "CHANGE_ME"
+  },
+  "version": "1.0.0",
+  "description": "A starter Claude Code marketplace. Add your own plugins and ship them with automated versioning.",
+  "author": {
+    "name": "CHANGE_ME",
+    "email": "CHANGE_ME@example.com"
+  },
+  "plugins": [
+    {
+      "name": "base-plugin",
+      "source": "./plugins/base-plugin",
+      "description": "Base plugin for your marketplace. Ships the skill-creator skill, plus a sample hook to replace with your own.",
+      "version": "0.1.0",
+      "keywords": [
+        "base",
+        "skills",
+        "skill-creator",
+        "starter"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+name: Release
+
+# Prevent concurrent releases - don't cross the streams
+concurrency:
+  group: ${{ github.workflow }}
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write       # Create branches and releases
+  pull-requests: write  # Create release PRs
+  issues: write         # Create labels
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  release-please:
+    name: Release Please
+    runs-on: ubuntu-latest
+    # Skip when bot pushes config sync commits (prevents double workflow runs)
+    if: github.actor != 'github-actions[bot]'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Runs on every non-bot push (the job-level actor guard prevents the bot's
+      # own sync commit from re-triggering). This must run after Release PR merges
+      # too: Release Please bumps each plugin.json but cannot reach the repo-root
+      # marketplace.json, so syncMarketplace() propagates the new version there.
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Generate Release Config
+        run: node scripts/generate-release-config.js
+
+      - name: Commit config changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .claude-plugin/marketplace.json release-please-config.json .release-please-manifest.json
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: sync marketplace and release config"
+            git push
+          fi
+
+      # Release Please runs on every push:
+      # - After feat/fix commits: creates or updates the Release PR
+      # - After Release PR merge: creates GitHub Release with git tag
+      - name: Create Release
+        uses: googleapis/release-please-action@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
