@@ -1,6 +1,6 @@
 {
 	"name": "base-plugin",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "Base plugin for your marketplace. Ships the skill-creator skill, plus a sample hook to replace with your own.",
 	"author": {
 		"name": "CHANGE_ME",
